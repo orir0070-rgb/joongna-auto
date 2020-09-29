@@ -18,7 +18,7 @@ function serve() {
       if (server) return;
       server = require("child_process").spawn(
         "npm",
-        ["run", "start", "--", "--dev"],
+        ["run", "svelte-start", "--", "--dev"],
         {
           stdio: ["ignore", "inherit", "inherit"],
           shell: true,
@@ -32,7 +32,7 @@ function serve() {
 }
 
 export default {
-  input: "src/main.js",
+  input: "src/svelte.js",
   output: {
     sourcemap: true,
     format: "iife",
