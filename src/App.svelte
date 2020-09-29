@@ -3,7 +3,6 @@
 </script>
 
 <main>
-
 	<h1>Hello {name}</h1>
 	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
 </main>
@@ -21,8 +20,6 @@
 		text-transform: uppercase;
 		font-size: 4em;
 		font-weight: 100;
-		display: flex;
-		flex-basis: 1;
 	}
 
 	@media (min-width: 640px) {
