@@ -1,6 +1,5 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
-
 const isDev = require("electron-is-dev");
 
 console.log("MD", isDev);
@@ -10,27 +9,36 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-require("electron-reload")(__dirname, {
-  electron: path.join(__dirname, "../node_modules", ".bin", "electron"),
-  awaitWriteFinish: true,
-});
+if (isDev) {
+  require("electron-reload")(__dirname, {
+    electron: path.join(__dirname, "../node_modules", ".bin", "electron"),
+    awaitWriteFinish: true,
+  });
+}
 
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 800,
+  const window = new BrowserWindow({
+    width: 452,
     height: 600,
+    minWidth: 452,
+    minHeight: 600,
+    maxWidth: 1000,
+    center: true,
+    darkTheme: true,
     webPreferences: {
+      nodeIntegration: true,
       devTools: isDev,
       webviewTag: true,
+      // worldSafeExecuteJavaScript: true,
     },
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, "../public/index.html"));
+  window.loadFile(path.join(__dirname, "../public/index.html"));
 
   // Open the DevTools.
-  isDev && mainWindow.webContents.openDevTools();
+  isDev && window.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
