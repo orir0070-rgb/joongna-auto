@@ -2,11 +2,15 @@
   import { onMount } from "svelte";
   import Icon from "fa-svelte";
   import { faBug } from "@fortawesome/free-solid-svg-icons/faBug";
+  import { faChevronUp } from "@fortawesome/free-solid-svg-icons/faChevronUp";
+  import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
   import WebView from "./WebView.svelte";
   import { userAgent, loginUrl, logoutUrl, writeUrl } from "./constants";
+  import { presets, selectedPresetIndex, boardList } from "./stores";
 
   let webview;
   let currentPage = "";
+  let showPresetList = false;
   
   onMount(async () => {
     webview.navigate(writeUrl);
@@ -47,6 +51,12 @@
 </svelte:head>
 <div class="layout">
   <nav>
+    <button
+      class="preset"
+    >
+    <span>{$selectedPresetIndex < 0 ? "프리셋을 선택하세요" : $presets[$selectedPresetIndex].presetTitle}</span>
+      <Icon icon={showPresetList ? faChevronUp : faChevronDown} />
+    </button>
     <div>
       <button
         title="개발자도구 열기"
@@ -54,6 +64,7 @@
       ><Icon icon={faBug}></Icon></button>
       <button
         title="로그아웃"
+        disabled={currentPage !== "write" || showPresetList}
         on:click={() => webview.navigate(logoutUrl)}
       >로그아웃</button>
     </div>
@@ -118,5 +129,33 @@
   }
   button:active {
     background-color: #777;
+  }
+  button.preset {
+    width: 200px;
+    display: flex;
+    justify-content: flex-end;
+    border: none;
+    border-right: 2px solid #222;
+    border-radius: 0;
+    height: 100%;
+    background-color: #666;
+    margin: 0;
+    color: #bbb;
+  }
+  button.preset:hover {
+    background-color: #888;
+  }
+  button.preset:active {
+    background-color: #666;
+  }
+  button.preset > span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #eee;
+  }
+  button.preset > :global(svg) {
+    padding-left: 4px;
+    flex-shrink: 0;
   }
 </style>
