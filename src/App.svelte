@@ -6,6 +6,10 @@
   import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
   import WebView from "./WebView.svelte";
   import { userAgent, loginUrl, logoutUrl, writeUrl } from "./constants";
+  import {
+    cleanUpLoginPage,
+    cleanUpWritePage,
+  } from "./automation";
   import { presets, selectedPresetIndex, boardList } from "./stores";
 
   let webview;
@@ -36,8 +40,14 @@
 
     switch (currentPage) {
       case "login":
+        await cleanUpLoginPage(webview);
         break;
       case "write":
+        try {
+          await cleanUpWritePage(webview);
+        } catch (error) {
+          console.error(error);
+        }
         break;
       default:
         webview.navigate(writeUrl);
