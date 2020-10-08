@@ -98,4 +98,25 @@
   main :global(.webview) {
     z-index: 1;
   }
+  button {
+    margin: 4px 4px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    background-color: #777;
+    color: #eee;
+    appearance: none;
+    border: 1px solid #888;
+    border-radius: 6px;
+  }
+  button:hover {
+    background-color: #888;
+  }
+  button:disabled {
+    color: #9f9f9f;
+    background-color: #777;
+  }
+  button:active {
+    background-color: #777;
+  }
 </style>
