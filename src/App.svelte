@@ -9,6 +9,8 @@
   import {
     cleanUpLoginPage,
     cleanUpWritePage,
+    waitWritePageReady,
+    getBoardList,
   } from "./automation";
   import { presets, selectedPresetIndex, boardList } from "./stores";
 
@@ -45,6 +47,8 @@
       case "write":
         try {
           await cleanUpWritePage(webview);
+          await waitWritePageReady(webview);
+          $boardList = await getBoardList(webview);
         } catch (error) {
           console.error(error);
         }
