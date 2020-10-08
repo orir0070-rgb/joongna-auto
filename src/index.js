@@ -26,6 +26,7 @@ const createWindow = () => {
     maxWidth: 1000,
     center: true,
     darkTheme: true,
+    title: "중나오토",
     webPreferences: {
       nodeIntegration: true,
       devTools: isDev,

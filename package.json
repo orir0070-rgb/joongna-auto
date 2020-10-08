@@ -1,6 +1,6 @@
 {
   "name": "joongna-auto",
-  "productName": "joongna-auto",
+  "productName": "중나오토",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": "src/index.js",
