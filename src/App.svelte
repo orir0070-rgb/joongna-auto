@@ -1,7 +1,16 @@
 <script>
+  import { onMount } from "svelte";
   import Icon from "fa-svelte";
   import { faBug } from "@fortawesome/free-solid-svg-icons/faBug";
+  import WebView from "./WebView.svelte";
+  import { userAgent, loginUrl, logoutUrl, writeUrl } from "./constants";
 
+  let webview;
+  let currentPage = "";
+  
+  onMount(async () => {
+    webview.navigate(writeUrl);
+  });
 
 
 </script>
@@ -14,13 +23,20 @@
     <div>
       <button
         title="개발자도구 열기"
+        on:click={() => webview.openDevTools()}
       ><Icon icon={faBug}></Icon></button>
       <button
         title="로그아웃"
+        on:click={() => webview.navigate(logoutUrl)}
       >로그아웃</button>
     </div>
   </nav>
   <main>
+    <WebView
+      bind:this={webview}
+      class="webview"
+      userAgent={userAgent}
+    />
   </main>
 </div>
 
@@ -50,5 +66,8 @@
     position: absolute;
     width: 100%;
     height: 100%;
+  }
+  main :global(.webview) {
+    z-index: 1;
   }
 </style>
