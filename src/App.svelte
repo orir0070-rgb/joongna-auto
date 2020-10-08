@@ -12,7 +12,34 @@
     webview.navigate(writeUrl);
   });
 
+  async function handleNavigate({ detail: { url, navigating } }) {
+    if (url.includes("nid.naver.com")) {
+      currentPage = "login";
+      if (url.includes(".logout") || url.includes(writeUrl)) {
+        webview.navigate(loginUrl);
+      }
+    } else if (url.includes(writeUrl)) {
+      currentPage = "write";
+    } else {
+      webview.navigate(writeUrl);
+    }
 
+    try {
+      await navigating;
+    } catch {
+      return;
+    }
+
+    switch (currentPage) {
+      case "login":
+        break;
+      case "write":
+        break;
+      default:
+        webview.navigate(writeUrl);
+        break;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -36,6 +63,7 @@
       bind:this={webview}
       class="webview"
       userAgent={userAgent}
+      on:navigate={handleNavigate}
     />
   </main>
 </div>
