@@ -11,6 +11,15 @@
   export function openDevTools() {
     webview.openDevTools();
   }
+  export function paste() {
+    webview.paste();
+  }
+  export function reload() {
+    webview.reloadIgnoringCache();
+  }
+  export function focus() {
+    webview.focus();
+  }
   export function runJS(js) {
     return webview.executeJavaScript(js, true);
   }
@@ -92,6 +101,26 @@
       clickCount: 1,
       ...coord,
     });
+  }
+  export async function pressKey(keyCode) {
+    await webview.sendInputEvent({
+      type:"char",
+      keyCode,
+    })
+  }
+  export async function setElementProperty(query, key, value) {
+    await runJS(`
+      document
+        .querySelector("${query.replaceAll(`"`,`\\"`)}")
+        .${key} = ${JSON.stringify(value)};
+    `);
+  }
+  export async function getElementProperty(query, key) {
+    return await runJS(`
+      document
+        .querySelector("${query.replaceAll(`"`,`\\"`)}")
+        ?.${key};
+    `);
   }
   
   export function navigate(url) {
