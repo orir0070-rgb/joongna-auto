@@ -9,5 +9,6 @@ export const userAgent = [
   "(KHTML, like Gecko)",
   "Version/14.0",
   "Mobile/15E148",
-  "Safari/604.1",
+  "Joongna-Auto/604.1",
+  //   "Safari/604.1",
 ].join(" ");
