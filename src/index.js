@@ -26,12 +26,13 @@ const createWindow = () => {
     minHeight: 600,
     maxWidth: 1000,
     center: true,
-    darkTheme: true,
     title: "중나오토",
+    titleBarStyle: "hidden",
     webPreferences: {
       nodeIntegration: true,
       devTools: isDev,
       webviewTag: true,
+      enableRemoteModule: true,
       worldSafeExecuteJavaScript: true,
     },
   });

@@ -1,4 +1,5 @@
 <script>
+  const { Titlebar, Color } = require('custom-electron-titlebar');
   import { onMount, tick } from "svelte";
   import Icon from "fa-svelte";
   import { faBug } from "@fortawesome/free-solid-svg-icons/faBug";
@@ -30,6 +31,9 @@
   let remainingPhotosToInject = 0;
 
   onMount(() => {
+    new Titlebar({
+      backgroundColor: Color.fromHex("#444"),
+    });
     webview.navigate(writeUrl);
   });
 
@@ -265,7 +269,6 @@
   nav {
     height: fit-content;
     background-color: #444;
-    border-bottom: 2px solid #222;
     display: flex;
     align-items: center;
   }
@@ -321,7 +324,6 @@
     display: flex;
     justify-content: flex-end;
     border: none;
-    border-right: 2px solid #222;
     border-radius: 0;
     height: 100%;
     background-color: #666;
