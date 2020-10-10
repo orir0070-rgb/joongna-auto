@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Icon from "fa-svelte";
   import { faBug } from "@fortawesome/free-solid-svg-icons/faBug";
+  import { faRedo } from "@fortawesome/free-solid-svg-icons/faRedo";
   import { faChevronUp } from "@fortawesome/free-solid-svg-icons/faChevronUp";
   import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
   import WebView from "./WebView.svelte";
@@ -76,6 +77,10 @@
         title="개발자도구 열기"
         on:click={() => webview.openDevTools()}
       ><Icon icon={faBug}></Icon></button>
+      <button
+        title="새로고침"
+        on:click={() => {ipcRenderer.send("refresh")}}
+      ><Icon icon={faRedo}></Icon></button>
       <button
         title="로그아웃"
         disabled={currentPage !== "write" || showPresetList}
