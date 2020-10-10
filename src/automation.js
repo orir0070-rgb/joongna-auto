@@ -41,3 +41,37 @@ export async function getBoardList(webview) {
   return list;
 }
 
+export async function selectBoard(webview, boardName) {
+  await webview.clickElement(".selectbox");
+  await webview.waitElementWithJS(".select_board ul");
+  const result = await webview.runJS(`
+    (function() {
+      const el = Array.prototype.find.call(
+        document.querySelectorAll(".select_board ul li label"),
+        el => el.innerText === "${boardName}"
+      );
+      if (!el) {
+        return false;
+      } else {
+        el.click();
+        return true;
+      }
+    })();
+  `);
+  if (!result) {
+    await webview.clickElement("button.btn_close");
+    return result;
+  }
+  try {
+    await webview.waitElementWithJS(".LayerPopup", 500);
+    await webview.runJS(`
+      (function() {
+        window.confirm = () => true;
+      })();
+    `);
+    await webview.clickElement("button.btn_close");
+    await webview.waitElementWithJS(".LayerPopup", 500);
+    await webview.clickElement(".LayerPopup .ButtonBase--green");
+  } catch {}
+  return true;
+}
