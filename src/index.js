@@ -3,7 +3,6 @@ const path = require("path");
 const isDev = require("electron-is-dev");
 const fs = require("fs");
 
-console.log("MD", isDev);
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   // eslint-disable-line global-require
@@ -33,7 +32,7 @@ const createWindow = () => {
       nodeIntegration: true,
       devTools: isDev,
       webviewTag: true,
-      // worldSafeExecuteJavaScript: true,
+      worldSafeExecuteJavaScript: true,
     },
   });
 
