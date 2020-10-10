@@ -6,6 +6,7 @@
   import { faChevronUp } from "@fortawesome/free-solid-svg-icons/faChevronUp";
   import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
   import WebView from "./WebView.svelte";
+  import PresetList from "./PresetList.svelte";
   import { userAgent, loginUrl, logoutUrl, writeUrl } from "./constants";
   import {
     cleanUpLoginPage,
@@ -18,8 +19,9 @@
   let webview;
   let currentPage = "";
   let showPresetList = false;
-  
-  onMount(async () => {
+  let showPresetDetail = false;
+  let currentEditingPresetIndex = -1;
+  onMount(() => {
     webview.navigate(writeUrl);
   });
 
@@ -68,6 +70,7 @@
   <nav>
     <button
       class="preset"
+      on:click={() => { showPresetList = !showPresetList; showPresetDetail = false; }}
     >
     <span>{$selectedPresetIndex < 0 ? "프리셋을 선택하세요" : $presets[$selectedPresetIndex].presetTitle}</span>
       <Icon icon={showPresetList ? faChevronUp : faChevronDown} />
@@ -95,6 +98,16 @@
       userAgent={userAgent}
       on:navigate={handleNavigate}
     />
+    {#if showPresetList}
+      <PresetList
+        class="preset-list"
+        on:change={() => { /* showPresetList = false */ }}
+        on:edit={(e) => {
+          currentEditingPresetIndex = e.detail.index;
+          showPresetDetail = true;
+        }}
+      />
+    {/if}
   </main>
 </div>
 
@@ -127,6 +140,11 @@
   }
   main :global(.webview) {
     z-index: 1;
+  }
+  main :global(.preset-list) {
+    overflow-y: scroll;
+    z-index: 2;
+    background-color: #fff;
   }
   button {
     margin: 4px 4px;
