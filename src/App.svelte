@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, tick } from "svelte";
   import Icon from "fa-svelte";
   import { faBug } from "@fortawesome/free-solid-svg-icons/faBug";
   import { faRedo } from "@fortawesome/free-solid-svg-icons/faRedo";
@@ -14,14 +14,21 @@
     cleanUpWritePage,
     waitWritePageReady,
     getBoardList,
+    selectBoard,
   } from "./automation";
   import { presets, selectedPresetIndex, boardList } from "./stores";
+  const { ipcRenderer, shell } = require("electron");
 
   let webview;
+  let contentView;
   let currentPage = "";
   let showPresetList = false;
   let showPresetDetail = false;
+  let showContentView = false;
   let currentEditingPresetIndex = -1;
+  let injectingStatus = "unavailable";
+  let remainingPhotosToInject = 0;
+
   onMount(() => {
     webview.navigate(writeUrl);
   });
@@ -46,6 +53,7 @@
 
     switch (currentPage) {
       case "login":
+        injectingStatus = "unavailable";
         await cleanUpLoginPage(webview);
         break;
       case "write":
@@ -53,6 +61,7 @@
           await cleanUpWritePage(webview);
           await waitWritePageReady(webview);
           $boardList = await getBoardList(webview);
+          injectingStatus = "available";
         } catch (error) {
           console.error(error);
         }
@@ -61,6 +70,117 @@
         webview.navigate(writeUrl);
         break;
     }
+  }
+  
+  async function injectPreset() {
+    // 제목 입력
+    injectingStatus = "injecting";
+    webview.focus();
+    const preset = $presets[$selectedPresetIndex];
+    await selectBoard(webview, preset.boardName);
+    await webview.setElementProperty(
+      ".ArticleWriteFormSubject textarea",
+      "value",
+      preset.postTitle
+    );
+    await webview.setElementProperty(
+      ".ArticleWriteFormSubject textarea",
+      "_value",
+      preset.postTitle
+    );
+
+    // 가격 입력
+    await webview.clickElement(".ArticleWriteCommercialFormPrice .input_price");
+    await webview.setElementProperty(
+      "input.input_price",
+      "value",
+      preset.price
+    );
+    await webview.pressKey("Tab");
+
+    // 상태 선택
+    await webview.clickElement(`label[for=product_condition_${preset.quality}]`);
+
+    // 결제 선택
+    await webview.clickElement(`.deal_button button:${preset.payment == 0 ? "first" : "last"}-child`);
+    if (preset.payment == 0) {
+      await webview.clickElement(`label[for=commerce_agree]`);
+    } else {
+      await webview.clickElement(`.pay_check .ToggleButton button`);
+    }
+
+    // 배송 선택
+    await webview.clickElement(`label[for=delivery_type_${preset.delivery}]`);
+
+    // 전화번호 선택
+    await webview.clickElement(`label[for=openPhoneNo]`);
+    if (preset.openContact == 1) {
+      await webview.clickElement(`label[for=useOtn]`);
+    }
+    if (preset.watermark === "false") {
+      await webview.clickElement(`.WatermarkAdd .ToggleButton button`);
+    }
+
+    // 태그 입력
+    webview.focus();
+    await webview.runJS(`
+      document.querySelector(".TagContainer textarea").focus();
+      (function() {
+        window.alert = console.log;
+      })();
+    `);
+    await webview.setElementProperty(
+      ".TagContainer textarea",
+      "value",
+      preset.tags
+    );
+    await webview.pressKey("#");
+
+    // 사진 입력 (기술적으로 불가, 클립보드 붙여넣기시 고해상도파일 불가)
+    if (preset.photoDir){
+      shell.openPath(preset.photoDir);
+    }
+    // const photoPaths = ipcRenderer.sendSync("get-photo-paths", preset.photoDir);
+    // [photoPaths[0]].forEach(async (path, index) => {
+    //   remainingPhotosToInject = photoPaths.length - index;
+    //   const image = nativeImage.createFromPath(path);
+    //   clipboard.write({ image });
+    //   webview.focus();
+    //   await webview.runJS(`
+    //     document.querySelector(".ArticleWriteFormSubject textarea").focus();
+    //     document
+    //       .querySelector("iframe")
+    //       .contentDocument
+    //       .querySelector("[contenteditable]")
+    //       .focus();
+    //   `);
+    //   webview.paste();
+    // });
+    // remainingPhotosToInject = 0;
+
+    // 내용 복사
+    showContentView = true;
+    await tick();
+    const selection = document.getSelection();
+    selection.removeAllRanges();
+    const range = document.createRange();
+    range.selectNodeContents(contentView);
+    selection.addRange(range);
+    document.execCommand("copy");
+    showContentView = false;
+    
+    // 내용 입력
+    webview.focus();
+    await webview.runJS(`
+      document.querySelector(".ArticleWriteFormSubject textarea").focus();
+      document
+        .querySelector("iframe")
+        .contentDocument
+        .querySelector("[contenteditable]")
+        .focus();
+    `);
+    webview.paste();
+    injectingStatus = "done";
   }
 </script>
 
@@ -75,6 +195,18 @@
     >
     <span>{$selectedPresetIndex < 0 ? "프리셋을 선택하세요" : $presets[$selectedPresetIndex].presetTitle}</span>
       <Icon icon={showPresetList ? faChevronUp : faChevronDown} />
+    </button>
+    <button
+      disabled={injectingStatus !== "available" || showPresetList}
+      on:click={injectPreset}
+    >
+      {#if injectingStatus === "available" || injectingStatus === "unavailable" }
+        내용 삽입
+      {:else if injectingStatus === "done" }
+        삽입 완료
+      {:else}
+        {remainingPhotosToInject > 0 ? `사진 삽입 중 (${remainingPhotosToInject})` : "삽입 중"}
+      {/if}
     </button>
     <div>
       <button
@@ -115,6 +247,11 @@
         editingIndex={currentEditingPresetIndex}
         on:back={() => showPresetDetail = false}
       />
+    {/if}
+    {#if showContentView}
+      <div bind:this={contentView} style="z-index: 5" contenteditable>
+        {@html $presets[$selectedPresetIndex].content}
+      </div>
     {/if}
   </main>
 </div>
