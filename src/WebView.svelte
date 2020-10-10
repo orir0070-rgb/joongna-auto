@@ -5,6 +5,7 @@
   let webview;
   let navigatingResolve = () => {};
   let navigatingReject = () => {};
+  let domReady = false;
 
   export let userAgent;
 
@@ -124,7 +125,12 @@
   }
   
   export function navigate(url) {
-    webview.src = url;
+    if (domReady) {
+      webview.stop();
+      webview.loadURL(url);
+    } else {
+      webview.src = url;
+    }
     dispatchNavigate(url);
   }
 
@@ -160,6 +166,7 @@
   partition="persist:webview"
   nodeintegration={false}
   enableremotemodule={false}
+  on:dom-ready|once={() => domReady = true}
   on:will-navigate={willNavigate}
   on:did-finish-load={didFinishLoad}
   on:did-fail-load={didFailLoad}
