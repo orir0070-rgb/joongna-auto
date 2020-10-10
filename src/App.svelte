@@ -7,6 +7,7 @@
   import { faChevronDown } from "@fortawesome/free-solid-svg-icons/faChevronDown";
   import WebView from "./WebView.svelte";
   import PresetList from "./PresetList.svelte";
+  import PresetDetail from "./PresetDetail.svelte";
   import { userAgent, loginUrl, logoutUrl, writeUrl } from "./constants";
   import {
     cleanUpLoginPage,
@@ -108,6 +109,13 @@
         }}
       />
     {/if}
+    {#if showPresetDetail}
+      <PresetDetail
+        class="preset-detail"
+        editingIndex={currentEditingPresetIndex}
+        on:back={() => showPresetDetail = false}
+      />
+    {/if}
   </main>
 </div>
 
@@ -144,6 +152,10 @@
   main :global(.preset-list) {
     overflow-y: scroll;
     z-index: 2;
+    background-color: #fff;
+  }
+  main :global(.preset-detail) {
+    z-index: 3;
     background-color: #fff;
   }
   button {
