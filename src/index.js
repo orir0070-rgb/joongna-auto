@@ -1,6 +1,7 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, dialog, ipcMain } = require("electron");
 const path = require("path");
 const isDev = require("electron-is-dev");
+const fs = require("fs");
 
 console.log("MD", isDev);
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -16,9 +17,10 @@ if (isDev) {
   });
 }
 
+let window;
 const createWindow = () => {
   // Create the browser window.
-  const window = new BrowserWindow({
+  window = new BrowserWindow({
     width: 452,
     height: 600,
     minWidth: 452,
@@ -66,3 +68,32 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+ipcMain.on("refresh", () => {
+  window.reload();
+});
+ipcMain.on("pick-dir", async (event, arg) => {
+  const result = await dialog.showOpenDialog(window, {
+    properties: ["openDirectory"],
+  });
+  if (result.filePaths) {
+    event.reply("picked-dir", result.filePaths[0]);
+  }
+});
+ipcMain.on("get-photo-paths", async (event, dir) => {
+  const paths = fs
+    .readdirSync(dir)
+    .map((p) => path.join(dir, p))
+    .filter((p) => {
+      const isFile = fs.lstatSync(p).isFile();
+      if (!isFile) {
+        return false;
+      }
+      const ext = path.extname(p).toLowerCase().substring(1);
+      if (ext === "png" || ext === "jpg" || ext === "jpeg") {
+        return true;
+      }
+      return false;
+    });
+  event.returnValue = paths;
+});
