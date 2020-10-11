@@ -20,13 +20,13 @@ let window;
 const createWindow = () => {
   // Create the browser window.
   window = new BrowserWindow({
-    width: 452,
+    width: 454,
     height: 600,
-    minWidth: 452,
+    minWidth: 454,
     minHeight: 600,
-    maxWidth: 1000,
     center: true,
     title: "중나오토",
+    frame: false,
     titleBarStyle: "hidden",
     webPreferences: {
       nodeIntegration: true,
