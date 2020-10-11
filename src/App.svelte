@@ -295,6 +295,7 @@
     background-color: #fff;
   }
   main :global(.preset-detail) {
+    overflow-y: scroll;
     z-index: 3;
     background-color: #fff;
   }
